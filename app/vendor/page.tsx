@@ -10,7 +10,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { MedHeader } from '@/components/med-header';
 import { Upload, Plus } from 'lucide-react';
 
-// Định nghĩa kiểu dữ liệu cho Inventory để tránh lỗi TS
 type InventoryKeys = 'insulin' | 'cloramin' | 'gauze' | 'paracetamol' | 'mask' | 'alcohol' | 'gloves' | 'saline' | 'firstaid';
 
 function VendorPortalContent() {
@@ -49,7 +48,7 @@ function VendorPortalContent() {
 
   const inventoryData: { id: string, name: string, category: string, unit: string, key: InventoryKeys }[] = [
     { id: 'insulin', name: 'Insulin Mix 30/70', category: 'Thuốc Mạn Tính', unit: 'Lọ', key: 'insulin' },
-    { id: 'paracetamol', name: 'Paracetamol 500mg', category: 'Thuốc Thiết Yêu', unit: 'Hộp', key: 'paracetamol' },
+    { id: 'paracetamol', name: 'Paracetamol 500mg', category: 'Thuốc Thiết Yếu', unit: 'Hộp', key: 'paracetamol' },
     { id: 'cloramin', name: 'Cloramin B', category: 'Sát Khuẩn Nước', unit: 'Kg', key: 'cloramin' },
     { id: 'alcohol', name: 'Cồn y tế 70 độ', category: 'Sát Khuẩn Ngoại Khoa', unit: 'Chai 500ml', key: 'alcohol' },
     { id: 'saline', name: 'Nước muối sinh lý 0.9%', category: 'Dịch Truyền/Rửa', unit: 'Chai 500ml', key: 'saline' },
@@ -63,21 +62,25 @@ function VendorPortalContent() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <MedHeader title="Med-Resilience+ | Vendor Portal" />
+      <MedHeader title="Med-Resilience+" />
 
-      <div className="max-w-7xl mx-auto px-6 py-6">
+      {/* Tối ưu padding cho mobile */}
+      <div className="max-w-7xl mx-auto p-3 md:p-6">
         <Card className="shadow-md">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-7">
-            <div>
-              <CardTitle className="text-2xl font-bold text-blue-900">Kho Nhà Thuốc Long Châu</CardTitle>
-              <CardDescription>Cập nhật số lượng vật tư sẵn sàng cho cứu hộ</CardDescription>
+          {/* Header: Chuyển sang xếp dọc (flex-col) trên mobile, xếp ngang (md:flex-row) trên desktop */}
+          <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between space-y-4 md:space-y-0 pb-6">
+            <div className="w-full">
+              <CardTitle className="text-xl md:text-2xl font-bold text-blue-900">Kho Nhà Thuốc Long Châu</CardTitle>
+              <CardDescription className="text-sm">Cập nhật số lượng vật tư sẵn sàng</CardDescription>
             </div>
-            <div className="flex gap-3">
-              <Button className="bg-blue-600 hover:bg-blue-700">
+            
+            {/* Các nút bấm: Kéo dài full-width trên mobile để dễ bấm */}
+            <div className="flex flex-col sm:flex-row gap-2 md:gap-3 w-full md:w-auto mt-2 md:mt-0">
+              <Button className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 h-11 md:h-10">
                 <Plus className="w-4 h-4 mr-2" /> Thêm Vật Tư
               </Button>
-              <Button asChild className="bg-emerald-600 hover:bg-emerald-700 cursor-pointer">
-                <label htmlFor="excel-upload">
+              <Button asChild className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 cursor-pointer h-11 md:h-10">
+                <label htmlFor="excel-upload" className="flex items-center justify-center w-full">
                   <Upload className="w-4 h-4 mr-2" /> Upload Excel
                 </label>
               </Button>
@@ -85,35 +88,37 @@ function VendorPortalContent() {
             </div>
           </CardHeader>
           
-          <CardContent>
-            <div className="overflow-x-auto border rounded-xl overflow-hidden">
-              <Table>
+          {/* Padding Content: Bỏ padding 2 bên trên mobile (p-0) để bảng tràn viền rộng hơn */}
+          <CardContent className="p-0 md:p-6 md:pt-0">
+            <div className="overflow-x-auto border-y md:border rounded-none md:rounded-xl">
+              {/* min-w-[700px] bắt buộc bảng phải đủ độ rộng, ép mobile phải cuộn ngang thay vì bóp méo chữ */}
+              <Table className="min-w-[700px]">
                 <TableHeader>
                   <TableRow className="bg-slate-100 hover:bg-slate-100">
-                    <TableHead className="w-12 text-center">
+                    <TableHead className="w-12 text-center whitespace-nowrap pl-4">
                       <Checkbox />
                     </TableHead>
-                    <TableHead className="font-bold">Tên Vật Tư</TableHead>
-                    <TableHead className="font-bold">Phân Loại</TableHead>
-                    <TableHead className="font-bold text-center">Tồn Kho</TableHead>
-                    <TableHead className="font-bold">Đơn Vị</TableHead>
-                    <TableHead className="font-bold">Trạng Thái</TableHead>
+                    <TableHead className="font-bold whitespace-nowrap">Tên Vật Tư</TableHead>
+                    <TableHead className="font-bold whitespace-nowrap">Phân Loại</TableHead>
+                    <TableHead className="font-bold text-center whitespace-nowrap">Tồn Kho</TableHead>
+                    <TableHead className="font-bold whitespace-nowrap">Đơn Vị</TableHead>
+                    <TableHead className="font-bold whitespace-nowrap pr-4">Trạng Thái</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {inventoryData.map((item) => (
                     <TableRow key={item.id} className="hover:bg-blue-50/50 transition-colors">
-                      <TableCell className="text-center">
+                      <TableCell className="text-center pl-4">
                         <Checkbox
                           checked={selectedItems.includes(item.id)}
                           onCheckedChange={() => toggleItemSelect(item.id)}
                         />
                       </TableCell>
-                      <TableCell className="font-medium text-slate-900">{item.name}</TableCell>
-                      <TableCell>
+                      <TableCell className="font-medium text-slate-900 whitespace-nowrap">{item.name}</TableCell>
+                      <TableCell className="whitespace-nowrap">
                         <Badge variant="outline" className="bg-white">{item.category}</Badge>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="whitespace-nowrap">
                         <Input
                           type="number"
                           value={inventoryValues[item.key]}
@@ -123,11 +128,12 @@ function VendorPortalContent() {
                               [item.key]: parseInt(e.target.value) || 0,
                             }))
                           }
-                          className="w-24 mx-auto text-center border-blue-200 focus:border-blue-500"
+                          // Tăng font text-base để iOS không tự động zoom in khi focus vào input
+                          className="w-24 mx-auto text-center border-blue-200 focus:border-blue-500 text-base"
                         />
                       </TableCell>
-                      <TableCell className="text-slate-600">{item.unit}</TableCell>
-                      <TableCell>
+                      <TableCell className="text-slate-600 whitespace-nowrap">{item.unit}</TableCell>
+                      <TableCell className="whitespace-nowrap pr-4">
                         {inventoryValues[item.key] > 0 ? (
                           <Badge className="bg-green-100 text-green-700 hover:bg-green-100 border-none">Còn hàng</Badge>
                         ) : (
