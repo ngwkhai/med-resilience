@@ -16,7 +16,7 @@ export function MedHeader({ title }: HeaderProps) {
             <img
               src="/favicon.png"
               alt="Logo"
-              className="w-10 h-10 rounded-lg object-contain bg-white"
+              className="w-16 h-16 object-contain"
             />
             <h1 className="text-2xl font-bold">{title}</h1>
           </div>
