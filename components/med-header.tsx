@@ -14,7 +14,7 @@ export function MedHeader({ title }: HeaderProps) {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <img
-              src="/logo.png"
+              src="/favicon.png"
               alt="Logo"
               className="w-10 h-10 rounded-lg object-contain bg-white"
             />
