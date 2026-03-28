@@ -40,6 +40,21 @@ export default function AdminLoginClient() {
       }
 
       if (data.user) {
+        const waitForSession = async () => {
+          for (let i = 0; i < 5; i++) {
+            const { data } = await supabase.auth.getSession();
+            if (data.session) return data.session;
+            await new Promise((r) => setTimeout(r, 100));
+          }
+          return null;
+        };
+
+        const session = await waitForSession();
+        if (!session) {
+          setError("Không thể tạo session");
+          return;
+        }
+        await new Promise((r) => setTimeout(r, 100));
         const { data: profile, error: profileError } = await supabase
           .from('user_profiles')
           .select('role')

@@ -31,6 +31,7 @@ export default function VendorLoginPage() {
         email,
         password,
       });
+      await new Promise((r) => setTimeout(r, 150));
 
       if (signInError) {
         setError('Email hoặc mật khẩu không chính xác');
@@ -39,12 +40,15 @@ export default function VendorLoginPage() {
       }
 
       if (data.user) {
+        console.log("👉 signed in");
         // 2. Kiểm tra profile để xác nhận đúng role 'vendor'
         const { data: profile, error: profileError } = await supabase
           .from('user_profiles')
           .select('role')
           .eq('id', data.user.id)
           .single();
+
+        console.log("👉 profile result:", profile, profileError); 
 
         if (profileError || !profile) {
           setError('Không thể tải hồ sơ người dùng');
