@@ -11,13 +11,13 @@ export default function RoleSelectorPage() {
           <CardTitle className="text-2xl text-center">Chọn vai trò đăng nhập</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
-          <Link href="/auth/admin-login">
+          <Link href="/admin">
             <Button className="w-full bg-blue-600 hover:bg-blue-700">Quản trị viên</Button>
           </Link>
-          <Link href="/auth/admin-login?role=operator">
+          <Link href="/drone">
             <Button className="w-full bg-green-600 hover:bg-green-700">Điều khiển viên Drone</Button>
           </Link>
-          <Link href="/auth/vendor-login">
+          <Link href="/vendor">
             <Button className="w-full bg-yellow-600 hover:bg-yellow-700">Nhà cung cấp</Button>
           </Link>
         </CardContent>

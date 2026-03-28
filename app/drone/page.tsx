@@ -1,270 +1,125 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { MedHeader } from '@/components/med-header';
-import { ProtectedRoute } from '@/lib/protected-route';
-import { useAuth } from '@/lib/auth-context';
-import { useRouter } from 'next/navigation';
-import { LogOut, Upload } from 'lucide-react';
+  import React from 'react';
+  import { AlertCircle, Zap, MapPin, Battery, Radio, LogOut } from 'lucide-react';
+  import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+  import { Button } from '@/components/ui/button';
+  import { MedHeader } from '@/components/med-header';
 
-export function VendorPortalContent() {
-  const [selectedItems, setSelectedItems] = useState<string[]>([]);
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  
-  // State quản lý form thêm mới
-  const [newItem, setNewItem] = useState({
-    name: '',
-    category: '',
-    unit: '',
-    quantity: 0
-  });
-  
-  // State lưu trữ số lượng tồn kho của các vật tư y tế
-  const [inventoryValues, setInventoryValues] = useState<Record<string, number>>({
-    insulin: 150,
-    cloramin: 50,
-    gauze: 300,
-    paracetamol: 500,
-    mask: 200,
-    alcohol: 50,
-    gloves: 150,
-    saline: 400,
-    firstaid: 20,
-  });
+  function DroneControlContent() {
+    return (
+      <div className="min-h-screen bg-slate-50">
+        <MedHeader title="Med-Resilience+" />
 
-  // Chuyển inventoryData thành State để có thể thêm mới
-  const [inventoryData, setInventoryData] = useState([
-    { id: 'insulin', name: 'Insulin Mix 30/70', category: 'Thuốc Mạn Tính', unit: 'Lọ', key: 'insulin' },
-    { id: 'paracetamol', name: 'Paracetamol 500mg', category: 'Thuốc Thiết Yếu', unit: 'Hộp', key: 'paracetamol' },
-    { id: 'cloramin', name: 'Cloramin B', category: 'Sát Khuẩn Nước', unit: 'Kg', key: 'cloramin' },
-    { id: 'alcohol', name: 'Cồn y tế 70 độ', category: 'Sát Khuẩn Ngoại Khoa', unit: 'Chai 500ml', key: 'alcohol' },
-    { id: 'saline', name: 'Nước muối sinh lý 0.9%', category: 'Dịch Truyền/Rửa', unit: 'Chai 500ml', key: 'saline' },
-    { id: 'gauze', name: 'Bông băng sơ cứu', category: 'Sơ Cứu Cấp Bách', unit: 'Bộ', key: 'gauze' },
-    { id: 'firstaid', name: 'Bộ kit cấp cứu thảm họa', category: 'Sơ Cứu Cấp Bách', unit: 'Bộ', key: 'firstaid' },
-    { id: 'mask', name: 'Khẩu trang y tế N95', category: 'Vật Tư Tiêu Hao', unit: 'Thùng', key: 'mask' },
-    { id: 'gloves', name: 'Găng tay vô khuẩn', category: 'Vật Tư Tiêu Hao', unit: 'Hộp', key: 'gloves' },
-  ]);
+        <div className="max-w-7xl mx-auto px-6 py-6">
+          <div className="bg-slate-950 text-white rounded-lg p-6 space-y-6">
+            {/* Camera Feed & Telemetry */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Camera Feed */}
+              <div className="lg:col-span-2">
+                <div className="bg-slate-900 border border-slate-700 rounded-lg overflow-hidden">
+                  <div className="relative h-96 bg-slate-800 flex items-center justify-center">
+                    {/* Thermal image feed */}
+                    <img
+                      src="/thermal-drone.jpg"
+                      alt="Thermal drone camera feed"
+                      className="object-contain w-full h-full"
+                    />
+                    {/* HUD Elements */}
+                    <div className="absolute top-4 left-4 text-xs text-green-400 font-mono">CAMERA FEED</div>
+                    <div className="absolute top-4 right-4 text-xs text-green-400 font-mono">REC 02:45</div>
+                  </div>
+                </div>
+              </div>
 
-  const toggleItemSelect = (id: string) => {
-    setSelectedItems(prev =>
-      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
-    );
-  };
-
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      console.log('File uploaded:', file.name);
-      alert(`Đã tải lên file: ${file.name}`);
-    }
-  };
-
-  // Hàm xử lý khi bấm nút "Lưu Vật Tư"
-  const handleAddNewItem = () => {
-    if (!newItem.name || !newItem.category || !newItem.unit) {
-      alert("Vui lòng nhập đủ thông tin (Tên, Phân loại, Đơn vị)");
-      return;
-    }
-
-    // Tạo key ngẫu nhiên an toàn để tránh trùng lặp
-    const newKey = `item_${Date.now()}`;
-    
-    // 1. Thêm vào danh sách data
-    setInventoryData(prev => [
-      ...prev, 
-      {
-        id: newKey,
-        name: newItem.name,
-        category: newItem.category,
-        unit: newItem.unit,
-        key: newKey
-      }
-    ]);
-
-    // 2. Thêm số lượng tồn kho tương ứng vào inventoryValues
-    setInventoryValues(prev => ({
-      ...prev,
-      [newKey]: newItem.quantity
-    }));
-
-    // 3. Reset form và đóng Modal
-    setNewItem({ name: '', category: '', unit: '', quantity: 0 });
-    setIsAddModalOpen(false);
-  };
-
-  return (
-    <div className="min-h-screen bg-slate-50">
-      <MedHeader title="Med-Resilience+" />
-
-      <div className="max-w-7xl mx-auto px-6 py-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Kho Nhà Thuốc Long Châu</CardTitle>
-            <CardDescription>Quản lý tồn kho vật tư y tế</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex flex-wrap gap-3 items-center justify-between">
-              <div className="flex gap-3">
-                
-                {/* Dialog Thêm Vật Tư Mới */}
-                <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-                  <DialogTrigger asChild>
-                    <Button className="bg-blue-600 hover:bg-blue-700">Thêm Vật Tư Mới</Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[425px]">
-                    <DialogHeader>
-                      <DialogTitle>Thêm Vật Tư Y Tế</DialogTitle>
-                      <DialogDescription>
-                        Nhập thông tin chi tiết của vật tư mới để thêm vào kho.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <label className="text-right text-sm font-medium">Tên Vật Tư</label>
-                        <Input 
-                          className="col-span-3" 
-                          placeholder="VD: Paracetamol 500mg"
-                          value={newItem.name}
-                          onChange={(e) => setNewItem({...newItem, name: e.target.value})}
-                        />
-                      </div>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <label className="text-right text-sm font-medium">Phân Loại</label>
-                        <Input 
-                          className="col-span-3" 
-                          placeholder="VD: Thuốc Thiết Yếu"
-                          value={newItem.category}
-                          onChange={(e) => setNewItem({...newItem, category: e.target.value})}
-                        />
-                      </div>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <label className="text-right text-sm font-medium">Số Lượng</label>
-                        <Input 
-                          type="number"
-                          className="col-span-3" 
-                          value={newItem.quantity}
-                          onChange={(e) => setNewItem({...newItem, quantity: parseInt(e.target.value) || 0})}
-                        />
-                      </div>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <label className="text-right text-sm font-medium">Đơn Vị</label>
-                        <Input 
-                          className="col-span-3" 
-                          placeholder="VD: Hộp, Lọ, Viên"
-                          value={newItem.unit}
-                          onChange={(e) => setNewItem({...newItem, unit: e.target.value})}
-                        />
-                      </div>
+              {/* Telemetry & Controls */}
+              <div className="space-y-4">
+                {/* Flight Data Cards */}
+                <Card className="bg-slate-900 border-slate-700 text-white">
+                  <CardContent className="pt-4 space-y-3 text-sm font-mono">
+                    <div className="flex justify-between items-center">
+                      <span className="text-green-400">Độ Cao</span>
+                      <span className="text-white">45m</span>
                     </div>
-                    <DialogFooter>
-                      <Button variant="outline" onClick={() => setIsAddModalOpen(false)}>Hủy</Button>
-                      <Button onClick={handleAddNewItem} className="bg-blue-600 hover:bg-blue-700">Lưu Vật Tư</Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-                
-                {/* Nút Upload Excel */}
-                <div>
-                  <Button asChild className="bg-emerald-600 hover:bg-emerald-700 cursor-pointer">
-                    <label htmlFor="excel-upload">
-                      <Upload className="w-4 h-4 mr-2" />
-                      Upload Excel
-                    </label>
+                    <div className="flex justify-between items-center border-t border-slate-700 pt-2">
+                      <span className="text-green-400">Tốc Độ Gió</span>
+                      <span className="text-white">15 km/h</span>
+                    </div>
+                    <div className="flex justify-between items-center border-t border-slate-700 pt-2">
+                      <span className="text-green-400 flex items-center gap-2"><Battery className="w-4 h-4" /> Pin</span>
+                      <span className="text-orange-400">68% (18 phút)</span>
+                    </div>
+                    <div className="flex justify-between items-center border-t border-slate-700 pt-2">
+                      <span className="text-green-400 flex items-center gap-2"><Radio className="w-4 h-4" /> Tọa Độ</span>
+                      <span className="text-white text-xs">10.7412, 106.7115</span>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Action Buttons */}
+                <div className="space-y-3">
+                  <Button className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3">
+                    <Zap className="w-4 h-4 mr-2" />
+                    Thả Vật Tư Y Tế Tự Động
                   </Button>
-                  <Input
-                    type="file"
-                    accept=".xlsx, .xls, .csv"
-                    className="hidden"
-                    id="excel-upload"
-                    onChange={handleFileUpload}
-                  />
+                  <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3">
+                    <MapPin className="w-4 h-4 mr-2" />
+                    Báo Tọa Độ Về Tháp Triage
+                  </Button>
+                  <Button className="w-full bg-slate-700 hover:bg-slate-600 text-white border border-slate-500 font-bold py-3">
+                    <AlertCircle className="w-4 h-4 mr-2" />
+                    Phát Loa Thông Báo Cứu Hộ
+                  </Button>
                 </div>
               </div>
             </div>
 
-            {/* Inventory Table */}
-            <div className="overflow-x-auto border rounded-lg mt-4">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-slate-100">
-                    <TableHead className="w-8">
-                      <Checkbox />
-                    </TableHead>
-                    <TableHead>Tên Vật Tư</TableHead>
-                    <TableHead>Phân Loại Nhóm Y Tế</TableHead>
-                    <TableHead>Số Lượng Tồn Kho</TableHead>
-                    <TableHead>Đơn Vị</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {inventoryData.map((item) => (
-                    <TableRow key={item.id} className="hover:bg-slate-50">
-                      <TableCell>
-                        <Checkbox
-                          checked={selectedItems.includes(item.id)}
-                          onCheckedChange={() => toggleItemSelect(item.id)}
-                        />
-                      </TableCell>
-                      <TableCell className="font-semibold">{item.name}</TableCell>
-                      <TableCell>{item.category}</TableCell>
-                      <TableCell>
-                        <Input
-                          type="number"
-                          value={inventoryValues[item.key] ?? 0}
-                          onChange={(e) =>
-                            setInventoryValues({
-                              ...inventoryValues,
-                              [item.key]: parseInt(e.target.value) || 0,
-                            })
-                          }
-                          className="w-20"
-                        />
-                      </TableCell>
-                      <TableCell>{item.unit}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
-}
-
-export default function VendorPortalPage() {
-  const { signOut } = useAuth();
-  const router = useRouter();
-
-  const handleLogout = async () => {
-    await signOut();
-    router.push('/auth/vendor-login');
-  };
-
-  return (
-    <ProtectedRoute requiredRoles="vendor" redirectTo="/auth/vendor-login">
-      <div className="flex flex-col min-h-screen">
-        <div className="absolute top-4 right-4 z-50">
-          <Button
-            onClick={handleLogout}
-            variant="destructive"
-            size="sm"
-            className="flex items-center gap-2"
-          >
-            <LogOut className="w-4 h-4" />
-            Đăng Xuất
-          </Button>
+            {/* Flight Log Table */}
+            <Card className="bg-slate-900 border-slate-700 text-white">
+              <CardHeader>
+                <CardTitle className="text-green-400">Nhật Ký Hoạt Động Drone</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs font-mono">
+                    <thead>
+                      <tr className="border-b border-slate-700">
+                        <th className="text-left py-2 text-green-400">Thời Gian</th>
+                        <th className="text-left py-2 text-green-400">Sự Kiện</th>
+                        <th className="text-left py-2 text-green-400">Trạng Thái</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr className="border-b border-slate-700">
+                        <td className="py-2">14:23:45</td>
+                        <td>Phát hiện người tại Q7-001</td>
+                        <td className="text-green-400">✓ THÀNH CÔNG</td>
+                      </tr>
+                      <tr className="border-b border-slate-700">
+                        <td className="py-2">14:12:30</td>
+                        <td>Thả túi Y Tế (Khối A-15)</td>
+                        <td className="text-green-400">✓ THÀNH CÔNG</td>
+                      </tr>
+                      <tr className="border-b border-slate-700">
+                        <td className="py-2">14:01:15</td>
+                        <td>Cất cánh từ Tháp Sở Chỉ Huy</td>
+                        <td className="text-green-400">✓ THÀNH CÔNG</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
-        <VendorPortalContent />
       </div>
-    </ProtectedRoute>
-  );
-}
+    );
+  }
+
+  export default function DroneControlPage() {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <DroneControlContent />
+      </div>
+    );
+  }
